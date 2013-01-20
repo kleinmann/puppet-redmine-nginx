@@ -1,0 +1,5 @@
+#/usr/bin/env bash
+# Requires fpm (effing package manager)
+
+# To be run in a directory with var/www/redmine under it.
+fpm -s dir -t deb --provides redmine -m "John Doe <john@example.com>" -a all --deb-user redmine --deb-group redmine -n redmine -v 2.1.2 .
