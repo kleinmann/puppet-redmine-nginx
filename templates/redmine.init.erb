@@ -1,0 +1,55 @@
+#!/bin/bash
+# MANAGED BY PUPPET
+# Module:: redmine-nginx
+#
+### BEGIN INIT INFO
+# Provides:          redmine
+# Required-Start:    $local_fs $remote_fs $network $syslog redis-server
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Redmine project management
+# Description:       Redmine project management
+### END INIT INFO
+
+DAEMON_OPTS="-c /var/www/redmine/config/unicorn.rb -E production -D"
+NAME=redmine
+DESC="Redmine service"
+PID=/var/www/redmine/tmp/pids/unicorn.pid
+
+case "$1" in
+  start)
+        CD_TO_APP_DIR="cd /var/www/redmine"
+        START_DAEMON_PROCESS="bundle exec unicorn_rails $DAEMON_OPTS"
+
+        echo -n "Starting $DESC: "
+        if [ `whoami` = root ]; then
+          sudo -u <%= redmine_user %> sh -l -c "$CD_TO_APP_DIR > /dev/null 2>&1 && $START_DAEMON_PROCESS"
+        else
+          $CD_TO_APP_DIR > /dev/null 2>&1 && $START_DAEMON_PROCESS
+        fi
+        echo "$NAME."
+        ;;
+  stop)
+        echo -n "Stopping $DESC: "
+        kill -QUIT `cat $PID`
+        echo "$NAME."
+        ;;
+  restart)
+        echo -n "Restarting $DESC: "
+        kill -USR2 `cat $PID`
+        echo "$NAME."
+        ;;
+  reload)
+        echo -n "Reloading $DESC configuration: "
+        kill -HUP `cat $PID`
+        echo "$NAME."
+        ;;
+  *)
+        echo "Usage: $NAME {start|stop|restart|reload}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
+

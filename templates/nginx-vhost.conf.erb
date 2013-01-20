@@ -1,0 +1,37 @@
+# MANAGED BY PUPPET
+# Module:: redmine-nginx
+#
+upstream redmine {
+    server unix:/var/lib/redmine/redmine.socket;
+}
+
+server {
+    listen 0.0.0.0:80;         # e.g., listen 192.168.1.1:80;
+    server_name <%= redmine_domain %>;     # e.g., server_name source.example.com;
+    root /var/www/redmine/public;
+    #ssl on;
+    #ssl_certificate redmine.crt;
+    #ssl_certificate_key redmine.key;
+
+    access_log  /var/log/nginx/redmine_access.log;
+    error_log   /var/log/nginx/redmine_error.log;
+
+    location / {
+        # serve static files from defined root folder;.
+        # @redmine is a named location for the upstream fallback, see below
+        try_files $uri $uri/index.html $uri.html @redmine;
+    }
+
+    # if a file, which is not found in the root folder is requested,
+    # then the proxy pass the request to the upstream (redmine unicorn)
+    location @redmine {
+      proxy_redirect     off;
+
+      # you need to change this to "https", if you set "ssl" directive to "on"
+      proxy_set_header   X-FORWARDED_PROTO http;
+      proxy_set_header   Host              $http_host;
+      proxy_set_header   X-Real-IP         $remote_addr;
+
+      proxy_pass http://redmine;
+    }
+}

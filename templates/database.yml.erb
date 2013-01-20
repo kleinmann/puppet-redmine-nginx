@@ -1,0 +1,27 @@
+# MANAGED BY PUPPET
+# Module:: redmine-nginx
+#
+# PRODUCTION
+#
+<% case redmine_dbtype -%>
+<% when 'mysql' -%>
+production:
+  adapter: mysql2
+  encoding: utf8
+  reconnect: false
+  database: <%= redmine_dbname %>
+  pool: 5
+  username: <%= redmine_dbuser %>
+  password: <%= redmine_dbpwd %>
+  host: <%= redmine_dbhost %>
+<% when 'pgsql' -%>
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: <%= redmine_dbname %>
+  pool: 5
+  username: <%= redmine_dbuser %>
+  password: <%= redmine_dbpwd %>
+  host: <%= redmine_dbhost %>
+  port: <%= redmine_dbport %>
+<% end -%>
