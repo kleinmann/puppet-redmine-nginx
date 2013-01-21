@@ -29,22 +29,17 @@ class redmine::server {
     ensure   => present,
     name     => 'redmine',
     provider => 'dpkg',
-    source   => '/opt/debs/redmine_2.1.2_all.deb',
+    source   => '/tmp/redmine_2.1.2_all.deb',
     require  => File['redmine-package'],
-  }
-
-  file { '/opt/debs':
-    ensure => 'directory',
   }
 
   file { 'redmine-package':
     ensure  => 'present',
-    path    => '/opt/debs/redmine_2.1.2_all.deb',
+    path    => '/tmp/redmine_2.1.2_all.deb',
     owner   => 'root',
     group   => 'root',
     mode    => 0644,
     source  => 'puppet:///modules/redmine/redmine_2.1.2_all.deb',
-    require => File['/opt/debs'],
   }
 
   exec {
