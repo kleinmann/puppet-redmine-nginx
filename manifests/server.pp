@@ -60,8 +60,30 @@ class redmine::server {
         Exec['Install redmine bundles'],
         ],
       refreshonly => true;
+    'Migrate redmine DB':
+      command   => 'bundle exec rake db:migrate RAILS_ENV=production',
+      logoutput => 'on_failure',
+      provider  => shell,
+      cwd       => "/var/www/redmine",
+      path      => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+      user      => $redmine_user,
+      creates   => '/.redmine_setup_done',
+      require   => [
+        Package['redmine'],
+        File['/var/www/redmine/config/database.yml'],
+        File['/var/www/redmine/tmp'],
+        Package['bundler'],
+        Exec['Install redmine bundles'],
+        ];
   }
 
+
+  file { '/.redmine_setup_done':
+    ensure  => 'present',
+    owner   => 'root',
+    group   => 'root',
+    require => Exec['Migrate redmine DB'],
+  }
 
   file {
     '/var/www/redmine/config/database.yml':
