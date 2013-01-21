@@ -13,12 +13,6 @@ class redmine::server {
   $redmine_domain  = $redmine::redmine_domain
   $redmine_user    = $redmine::redmine_user
 
-  package {
-    'bundler':
-      ensure   => installed,
-      provider => gem;
-  }
-
   $redmine_without_gems = $redmine_dbtype ? {
     mysql    => 'postgres sqlite',
     pgsql    => 'mysql sqlite',
